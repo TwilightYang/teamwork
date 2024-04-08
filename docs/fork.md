@@ -3,6 +3,17 @@
 后续开发可能都是把[团队仓库](https://github.com/da3monu/teamwork.git)fork到自己的仓库，最后再合并
 这里就展示git命令行的方法，现在选题还未确定，也不好介绍其他集成开发环境的的git使用，大差不差
 
+## 安装git
+
+git: https://git-scm.com/download/win
+
+![down](./ForkImage/download.png)
+
+安装完成后应该会多一个`git bash`
+
+![bash](./ForkImage/bash.png)
+
+后续的操作建议打开这个git bash进行，因为cmd突然遇到了commit message中文乱码的情况，解决方法<https://www.cnblogs.com/lonecloud/p/15072508.html>
 
 ## fork项目
 
