@@ -24,6 +24,7 @@ public class User {
 
     /**
      * 设置用户名
+     * @param username
      */
     public void setUsername(String username) {
         this.username = username;
@@ -40,6 +41,7 @@ public class User {
 
     /**
      * 设置密码
+     * @param password
      */
     public void setPassword(String password) {
         this.password = password;

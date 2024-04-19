@@ -22,7 +22,7 @@ public class CodeUtil {
         for (int i = 0; i < 4; i++) {
             int index = random.nextInt(list.size()); // 获取随机索引
             char c = list.get(index);
-            result = result + c; // 添加到结果字符串
+            result =result + c; // 添加到结果字符串
         }
 
         int number = random.nextInt(10); // 生成0-9的随机数
@@ -36,6 +36,8 @@ public class CodeUtil {
         chars[4] = chars[index];
         chars[index] = temp;
 
-        return new String(chars);
+        String code = new String(chars); // 将字符数组转换为字符串
+
+        return code;
     }
 }
