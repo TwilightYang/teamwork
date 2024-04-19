@@ -2,7 +2,6 @@ package ui;
 
 import cn.hutool.core.io.FileUtil;
 import domain.User;
-import jdk.nashorn.internal.scripts.JD;
 
 import javax.swing.*;
 import java.awt.event.MouseListener;
