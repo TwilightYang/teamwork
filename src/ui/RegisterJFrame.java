@@ -155,10 +155,10 @@ public class RegisterJFrame extends JFrame implements MouseListener {
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getSource() == submit) {
-            submit.setIcon(new ImageIcon("src\\resources\\images\\register\\submit_press.png"));
+            submit.setIcon(new ImageIcon("images\\register\\submit_press.png"));
         }
         else if (e.getSource() == reset) {
-            reset.setIcon(new ImageIcon("src\\resources\\images\\register\\reset_press.png"));
+            reset.setIcon(new ImageIcon("images\\register\\reset_press.png"));
         }
     }
 
@@ -168,10 +168,10 @@ public class RegisterJFrame extends JFrame implements MouseListener {
     @Override
     public void mouseReleased(MouseEvent e) {
         if (e.getSource() == submit) {
-            submit.setIcon(new ImageIcon("src\\resources\\images\\register\\submit.png"));
+            submit.setIcon(new ImageIcon("images\\register\\submit.png"));
         }
         else if (e.getSource() == reset) {
-            reset.setIcon(new ImageIcon("src\\resources\\images\\register\\reset.png"));
+            reset.setIcon(new ImageIcon("images\\register\\reset.png"));
         }
     }
 
@@ -197,9 +197,9 @@ public class RegisterJFrame extends JFrame implements MouseListener {
             jDialog.getContentPane().removeAll(); // 清空弹框内容
 
             JLabel jLabel = new JLabel(content);
-            jLabel.setBounds(0, 0, 200, 150);
+            jLabel.setBounds(0, 0, 300, 100); // 设置标签大小和位置
             jDialog.add(jLabel); // 添加弹框内容
-            jDialog.setSize(200, 150); // 设置弹框大小
+            jDialog.setSize(300, 100); // 设置弹框大小
             jDialog.setAlwaysOnTop(true); // 设置弹框置顶
             jDialog.setLocationRelativeTo(null);// 设置弹框居中显示
             jDialog.setModal(true); // 设置弹框为模式对话框
