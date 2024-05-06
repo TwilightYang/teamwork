@@ -81,7 +81,7 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         //2.打乱数组中的数据的顺序
         //遍历数组，得到每一个元素，拿着每一个元素跟随机索引上的数据进行交换
         Random r = new Random();
-        for (int i = 0, len = tempArr.length-1; i < len; i++) {
+        for (int i = 0, len = tempArr.length-1; i < len; ) {
             //获取到随机索引
             int index = r.nextInt(len);
             if ((Math.abs(index-i))%2==0) {
@@ -94,7 +94,8 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
                     left++;
                 }
                 tempArr[right] = temp;
-            }else i--;
+                i++;
+            }
         }
         System.out.println(Arrays.toString(tempArr));
         /*
