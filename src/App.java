@@ -1,9 +1,6 @@
 import com.ui.GameJFrame;
 import com.ui.LoginJFrame;
 
-
-import ui.LoginJFrame;
-
 /*
 运行类
  */
@@ -16,7 +13,7 @@ public class App {
         new GameJFrame();
 
         // 创建对象  并显示登录窗口
-        new LoginJFrame();
+        //new LoginJFrame();
 
     }
 }
