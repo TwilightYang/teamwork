@@ -24,10 +24,9 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
     int y = 0;
 
     //定义一个变量，记录当前展示图片的路径
-    String path = "image\\animal\\animal3\\";
-
-
-
+    String pathMain = "image";
+    String style = "animal";
+    int numberNO = 1;
 
 
     //定义一个二维数组，存储正确的数据
@@ -48,6 +47,10 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
     JMenuItem closeItem = new JMenuItem("关闭游戏");
 
     JMenuItem accountItem = new JMenuItem("公众号");
+
+    JMenuItem girls = new JMenuItem("美女");
+    JMenuItem animals = new JMenuItem("动物");
+    JMenuItem sports = new JMenuItem("运动");
 
 
     public GameJFrame() {
@@ -107,8 +110,11 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         }
     }
 
-    //初始化图片
-    //添加图片的时候，就需要按照二维数组中管理的数据添加图片
+
+    /**
+     * 初始化图片
+     * 添加图片的时候，就需要按照二维数组中管理的数据添加图片
+     */
     private void initImage() {
 
         //清空原本已经出现的所有图片
@@ -142,7 +148,7 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
                 //获取当前要加载图片的序号
                 int num = data[i][j];
                 //创建一个JLabel的对象（管理容器）
-                JLabel jLabel = new JLabel(new ImageIcon(path + num + ".jpg"));
+                JLabel jLabel = new JLabel(new ImageIcon(pathMain+"/"+style+"/"+style+numberNO+"/" + num + ".jpg"));
                 //指定图片位置
                 jLabel.setBounds(105 * j + 83, 105 * i + 134, 105, 105);
                 //给图片添加边框
@@ -174,13 +180,16 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         //创建菜单上面的两个选项的对象 （功能  关于我们）
         JMenu functionJMenu = new JMenu("功能");
         JMenu aboutJMenu = new JMenu("关于我们");
-
+        JMenu styleJMenu = new JMenu("风格");
 
 
         //将每一个选项下面的条目天极爱到选项当中
         functionJMenu.add(replayItem);
         functionJMenu.add(reLoginItem);
         functionJMenu.add(closeItem);
+        styleJMenu.add(animals);
+        styleJMenu.add(sports);
+        styleJMenu.add(girls);
 
         aboutJMenu.add(accountItem);
 
@@ -188,11 +197,15 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         replayItem.addActionListener(this);
         reLoginItem.addActionListener(this);
         closeItem.addActionListener(this);
+        animals.addActionListener(this);
+        sports.addActionListener(this);
+        girls.addActionListener(this);
         accountItem.addActionListener(this);
 
         //将菜单里面的两个选项添加到菜单当中
         jMenuBar.add(functionJMenu);
         jMenuBar.add(aboutJMenu);
+        jMenuBar.add(styleJMenu);
 
 
 
@@ -231,13 +244,13 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         if (code == 65){//按键a
             //把界面中所有的图片全部删除
             this.getContentPane().removeAll();
-            //加载第一张完整的图片
-            JLabel all = new JLabel(new ImageIcon(path + "all.jpg"));
+            //加载第一张完整的图片image/animal/animal1
+            JLabel all = new JLabel(new ImageIcon(pathMain+"/"+style+"/"+style+numberNO+"/" + "all.jpg"));
             all.setBounds(83,134,420,420);
             this.getContentPane().add(all);
             //加载背景图片
             //添加背景图片
-            JLabel background = new JLabel(new ImageIcon("image\\background.png"));
+            JLabel background = new JLabel(new ImageIcon("image/background.png"));
             background.setBounds(40, 40, 508, 560);
             //把背景图片添加到界面当中
             this.getContentPane().add(background);
@@ -396,6 +409,44 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
             jDialog.setModal(true);
             //让弹框显示出来
             jDialog.setVisible(true);
+        }else if (obj == girls){
+            if (style.equals("girl")){
+                numberNO=++numberNO%14;
+                if (numberNO == 0) {
+                    numberNO = 1;
+                }
+            } else numberNO=1;
+            style = "girl";
+            step=0;
+            //初始化数据（打乱）
+            initData();
+            initImage();
+        } else if (obj == animals) {
+            if (style.equals("animal")){
+                numberNO=++numberNO%9;
+                if (numberNO == 0) {
+                    numberNO = 1;
+                }
+            }
+            else numberNO=1;
+            style = "animal";
+            step=0;
+            //初始化数据（打乱）
+            initData();
+            initImage();
+        } else if (obj == sports) {
+            if (style.equals("sport")){
+                numberNO=++numberNO%11;
+                if (numberNO == 0) {
+                    numberNO = 1;
+                }
+            }
+            else numberNO=1;
+            style = "sport";
+            step=0;
+            //初始化数据（打乱）
+            initData();
+            initImage();
         }
     }
 }
