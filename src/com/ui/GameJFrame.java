@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Arrays;
 import java.util.Random;
 
 public class GameJFrame extends JFrame implements KeyListener,ActionListener{
@@ -76,19 +77,26 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
     //初始化数据（打乱）
     private void initData() {
         //1.定义一个一维数组
-        int[] tempArr = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+        int[] tempArr = {1, 2, 3, 4, 8, 7, 6, 10, 11, 12, 15, 14, 13, 9, 5, 0};
         //2.打乱数组中的数据的顺序
         //遍历数组，得到每一个元素，拿着每一个元素跟随机索引上的数据进行交换
         Random r = new Random();
-        for (int i = 0; i < tempArr.length; i++) {
+        for (int i = 0, len = tempArr.length-1; i < len; i++) {
             //获取到随机索引
-            int index = r.nextInt(tempArr.length);
-            //拿着遍历到的每一个数据，跟随机索引上的数据进行交换
-            int temp = tempArr[i];
-            tempArr[i] = tempArr[index];
-            tempArr[index] = temp;
+            int index = r.nextInt(len);
+            if ((Math.abs(index-i))%2==0) {
+                //拿着遍历到的每一个数据，跟随机索引上的数据进行交换
+                int left = Math.min(i, index);
+                int right = Math.max(i, index);
+                int temp = tempArr[left];
+                while(left<right){
+                    tempArr[left] = tempArr[left+1];
+                    left++;
+                }
+                tempArr[right] = temp;
+            }else i--;
         }
-
+        System.out.println(Arrays.toString(tempArr));
         /*
         *
         *           5   6   8   9
@@ -231,6 +239,7 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         this.addKeyListener(this);
 
     }
+
 
     @Override
     public void keyTyped(KeyEvent e) {
