@@ -1,4 +1,4 @@
-import ui.LoginJFrame;
+import com.ui.LoginJFrame;
 /*
 运行类
  */

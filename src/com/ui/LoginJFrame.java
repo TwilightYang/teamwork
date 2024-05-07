@@ -1,5 +1,6 @@
 package com.ui;
 
+import cn.hutool.core.io.FileUtil;
 import com.domain.User;
 import com.util.CodeUtil;
 
@@ -7,238 +8,252 @@ import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * 登录界面
+ */
 public class LoginJFrame extends JFrame implements MouseListener {
 
-    static ArrayList<User> allUsers = new ArrayList<>();
-    static {
-        allUsers.add(new User("zhangsan","123"));
-        allUsers.add(new User("lisi","1234"));
-    }
+    ArrayList<User> allUsers = new ArrayList<>();
 
+    JTextField username = new JTextField(); // 用户名输入框
+    JPasswordField password = new JPasswordField(); // 密码输入框
+    JTextField code = new JTextField(); // 验证码输入框
+    JLabel rightCode = new JLabel(); // 正确的验证码
 
-    JButton login = new JButton();
-    JButton register = new JButton();
-
-    JTextField username = new JTextField();
-    //JTextField password = new JTextField();
-    JPasswordField password = new JPasswordField();
-    JTextField code = new JTextField();
-
-    //正确的验证码
-    JLabel rightCode = new JLabel();
-
+    JButton login = new JButton(); // 登录按钮
+    JButton register = new JButton(); // 注册按钮
 
     public LoginJFrame() {
-        //初始化界面
+        // 打开界面是读取文件 在构造方法中写
+        // 读取本地文件的用户信息
+        readUserInfo();
+        // 初始化界面
         initJFrame();
-
-        //在这个界面中添加内容
+        // 初始化界面内容
         initView();
-
-
-        //让当前界面显示出来
+        // 显示窗口
         this.setVisible(true);
     }
 
+    /**
+     * 读取本地文件的用户信息
+     */
+    private void readUserInfo() {
+        String relativelyPath = System.getProperty("user.dir");
+        //读取数据
+        List<String> userInfoStrList = FileUtil.readUtf8Lines(relativelyPath+"\\userinfo.txt");
+        // 遍历集合获取用户信息  转换成User对象
+        for (String str : userInfoStrList) {
+            // 格式：username=zhangsan&password=123
+            String[] userInfoArr = str.split("&");  // 按 & 分割
+            // 0 --> username=zhangsan   1 --> password=123
+            String[] arr1 = userInfoArr[0].split("=");
+            String[] arr2 = userInfoArr[1].split("=");
+            System.out.println(arr1[1]);
+            System.out.println(arr2[1]);
+            // 创建User对象
+            User u = new User(arr1[1],arr2[1]);
+            // 添加到集合中
+            allUsers.add(u);
+        }
+        // 读取本地文件的用户信息
+        System.out.println(allUsers);
+    }
+
+    /**
+     * 初始化界面
+     */
+    public void initJFrame() {
+        // 设置窗口大小 宽高
+        this.setSize(488,435);
+        // 设置窗口标题
+        this.setTitle("拼图游戏 V1.0登录");
+        // 设置窗口关闭时的默认操作
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // 设置窗口居中显示
+        this.setLocationRelativeTo(null);
+        // 设置窗口置顶
+        this.setAlwaysOnTop(true);
+        // 设置窗口布局为null，取消内部默认布局，以便自定义组件位置
+        this.setLayout(null);
+    }
+
+    /**
+     * 初始化界面内容
+     * 包括：用户名、密码、验证码输入框、登录按钮、注册按钮
+     */
     public void initView() {
-        //1. 添加用户名文字
-        JLabel usernameText = new JLabel(new ImageIcon("image\\login\\用户名.png"));
-        usernameText.setBounds(116, 135, 47, 17);
-        this.getContentPane().add(usernameText);
+        // 添加用户名文字
+        JLabel usernameText = new JLabel(new ImageIcon("image\\login\\username.png"));
+        usernameText.setBounds(116,135,47,17); // 设置文字位置和大小
+        this.getContentPane().add(usernameText); // 添加到窗口
 
-        //2.添加用户名输入框
-
+        // 创建用户名输入框
         username.setBounds(195, 134, 200, 30);
-        this.getContentPane().add(username);
+        this.getContentPane().add(username); // 添加到窗口
 
-        //3.添加密码文字
-        JLabel passwordText = new JLabel(new ImageIcon("image\\login\\密码.png"));
-        passwordText.setBounds(130, 195, 32, 16);
-        this.getContentPane().add(passwordText);
+        // 添加密码文字
+        JLabel passwordText = new JLabel(new ImageIcon("image\\login\\password.png"));
+        passwordText.setBounds(130,195,32,16);
+        this.getContentPane().add(passwordText); // 添加到窗口
 
-        //4.密码输入框
+        // 创建密码输入框
         password.setBounds(195, 195, 200, 30);
-        this.getContentPane().add(password);
+        this.getContentPane().add(password); // 添加到窗口
 
-
-        //验证码提示
-        JLabel codeText = new JLabel(new ImageIcon("image\\login\\验证码.png"));
-        codeText.setBounds(133, 256, 50, 30);
+        // 验证码提示
+        JLabel codeText = new JLabel(new ImageIcon("image\\login\\code.png"));
+        codeText.setBounds(133,256,50,30);
         this.getContentPane().add(codeText);
 
-        //验证码的输入框
+        // 创建验证码输入框
         code.setBounds(195, 256, 100, 30);
         this.getContentPane().add(code);
 
-
         String codeStr = CodeUtil.getCode();
-        //设置内容
-        rightCode.setText(codeStr);
-        //绑定鼠标事件
-        rightCode.addMouseListener(this);
-        //位置和宽高
-        rightCode.setBounds(300, 256, 50, 30);
-        //添加到界面
-        this.getContentPane().add(rightCode);
+        rightCode.setText(codeStr); // 设置正确的验证码
+        rightCode.addMouseListener(this); // 添加鼠标点击事件
+        rightCode.setBounds(300, 256, 50, 30); // 设置验证码位置和宽高
+        this.getContentPane().add(rightCode); // 添加到窗口
 
-        //5.添加登录按钮
+        // 添加登录按钮
         login.setBounds(123, 310, 128, 47);
-        login.setIcon(new ImageIcon("image\\login\\登录按钮.png"));
-        //去除按钮的边框
-        login.setBorderPainted(false);
-        //去除按钮的背景
-        login.setContentAreaFilled(false);
-        //给登录按钮绑定鼠标事件
-        login.addMouseListener(this);
-        this.getContentPane().add(login);
+        login.setIcon(new ImageIcon("image\\login\\login.png"));
+        login.setBorderPainted(false); // 去除按钮边框
+        login.setContentAreaFilled(false); // 设置按钮透明 去除背景
+        login.addMouseListener(this);// 绑定鼠标事件
+        this.getContentPane().add(login); // 添加到窗口
 
-        //6.添加注册按钮
-        register.setBounds(256, 310, 128, 47);
-        register.setIcon(new ImageIcon("image\\login\\注册按钮.png"));
-        //去除按钮的边框
-        register.setBorderPainted(false);
-        //去除按钮的背景
-        register.setContentAreaFilled(false);
-        //给注册按钮绑定鼠标事件
-        register.addMouseListener(this);
-        this.getContentPane().add(register);
+        // 添加注册按钮
+        register.setBounds(260, 310, 128, 47);
+        register.setIcon(new ImageIcon("image\\login\\register.png"));
+        register.setBorderPainted(false); // 去除按钮边框
+        register.setContentAreaFilled(false); // 设置按钮透明 去除背景
+        register.addMouseListener(this);// 绑定鼠标事件
+        this.getContentPane().add(register); // 添加到窗口
 
-
-        //7.添加背景图片
+        // 添加背景图片
         JLabel background = new JLabel(new ImageIcon("image\\login\\background.png"));
         background.setBounds(0, 0, 470, 390);
         this.getContentPane().add(background);
-
     }
 
-
-    public void initJFrame() {
-        this.setSize(488, 430);//设置宽高
-        this.setTitle("拼图游戏 V1.0登录");//设置标题
-        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);//设置关闭模式
-        this.setLocationRelativeTo(null);//居中
-        this.setAlwaysOnTop(true);//置顶
-        this.setLayout(null);//取消内部默认布局
-    }
-
-
-
-    //点击
+    /**
+     * 点击鼠标事件
+     */
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getSource() == login) {
-            System.out.println("点击了登录按钮");
-            //获取两个文本输入框中的内容
+            System.out.println("登录按钮被点击");
+            // 获取用户输入的用户名和密码
             String usernameInput = username.getText();
             String passwordInput = password.getText();
-            //获取用户输入的验证码
+            // 获取用户输入的验证码
             String codeInput = code.getText();
 
-            //创建一个User对象
-            User userInfo = new User(usernameInput, passwordInput);
-            System.out.println("用户输入的用户名为" + usernameInput);
-            System.out.println("用户输入的密码为" + passwordInput);
+            // 创建一个User对象
+            User userInfo = new User(usernameInput,passwordInput);
+            System.out.println("用户输入的用户名：" + usernameInput);
+            System.out.println("用户输入的密码：" + passwordInput);
 
             if (codeInput.length() == 0) {
-                showJDialog("验证码不能为空");
+                showJDialog("验证码不能为空！");
             } else if (usernameInput.length() == 0 || passwordInput.length() == 0) {
                 //校验用户名和密码是否为空
                 System.out.println("用户名或者密码为空");
-
                 //调用showJDialog方法并展示弹框
                 showJDialog("用户名或者密码为空");
-
-
-            } else if (!codeInput.equalsIgnoreCase(rightCode.getText())) {
-                showJDialog("验证码输入错误");
-            } else if (contains(userInfo)) {
+            } else if ( !codeInput.equalsIgnoreCase(rightCode.getText())) {
+                showJDialog("验证码错误！");
+            } else if ( isContains( userInfo )) {
                 System.out.println("用户名和密码正确可以开始玩游戏了");
-                //关闭当前登录界面
+                // 关闭当前登录界面
                 this.setVisible(false);
-                //打开游戏的主界面
-                //需要把当前登录的用户名传递给游戏界面
+                // 创建一个游戏窗口
                 new GameJFrame();
             } else {
                 System.out.println("用户名或密码错误");
-                showJDialog("用户名或密码错误");
+                showJDialog("用户名或者密码错误！");
             }
         } else if (e.getSource() == register) {
             System.out.println("点击了注册按钮");
+            this.setVisible(false); // 关闭当前登录界面
+            new RegisterJFrame(allUsers); // 创建一个注册窗口 传入用户集合
         } else if (e.getSource() == rightCode) {
             System.out.println("更换验证码");
-            //获取一个新的验证码
+            // 生成验证码
             String code = CodeUtil.getCode();
             rightCode.setText(code);
         }
+
     }
 
-
-    public void showJDialog(String content) {
-        //创建一个弹框对象
-        JDialog jDialog = new JDialog();
-        //给弹框设置大小
-        jDialog.setSize(200, 150);
-        //让弹框置顶
-        jDialog.setAlwaysOnTop(true);
-        //让弹框居中
-        jDialog.setLocationRelativeTo(null);
-        //弹框不关闭永远无法操作下面的界面
-        jDialog.setModal(true);
-
-        //创建Jlabel对象管理文字并添加到弹框当中
-        JLabel warning = new JLabel(content);
-        warning.setBounds(0, 0, 200, 150);
-        jDialog.getContentPane().add(warning);
-
-        //让弹框展示出来
-        jDialog.setVisible(true);
-    }
-
-    //按下不松
+    /**
+     * 鼠标按下不松
+     */
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getSource() == login) {
-            login.setIcon(new ImageIcon("image\\login\\登录按下.png"));
+            login.setIcon(new ImageIcon("image\\login\\login_press.png"));
         } else if (e.getSource() == register) {
-            register.setIcon(new ImageIcon("image\\login\\注册按下.png"));
+            register.setIcon(new ImageIcon("image\\login\\register_press.png"));
         }
     }
 
-
-    //松开按钮
+    /**
+     * 鼠标松开
+     */
     @Override
     public void mouseReleased(MouseEvent e) {
         if (e.getSource() == login) {
-            login.setIcon(new ImageIcon("image\\login\\登录按钮.png"));
+            login.setIcon(new ImageIcon("image\\login\\login.png"));
         } else if (e.getSource() == register) {
-            register.setIcon(new ImageIcon("image\\login\\注册按钮.png"));
+            register.setIcon(new ImageIcon("image\\login\\register.png"));
         }
     }
 
-    //鼠标划入
+    /**
+     * 鼠标划入
+     */
     @Override
     public void mouseEntered(MouseEvent e) {
 
     }
 
-    //鼠标划出
+    /**
+     * 鼠标划出
+     */
     @Override
     public void mouseExited(MouseEvent e) {
-
     }
 
-    //判断用户在集合中是否存在
-    public boolean contains(User userInput){
+    /**
+     * 显示弹框
+     */
+    public void showJDialog(String content) {
+        JDialog jDialog = new JDialog(); // 创建一个弹框对象
+        jDialog.setSize(200, 150); // 设置弹框大小
+        jDialog.setAlwaysOnTop(true);  // 设置弹框置顶显示
+        jDialog.setLocationRelativeTo(null); // 设置弹框居中显示
+        jDialog.setModal(true); // 设置弹框为模式对话框 弹框不关闭永远无法操作下面的界面
+
+        JLabel warning = new JLabel(content); // 创建一个标签用于显示提示信息
+        warning.setBounds(0,0, 200, 150);
+        jDialog.getContentPane().add(warning); // 将标签添加到弹框中
+        jDialog.setVisible(true); // 设置弹框可见
+    }
+
+    /**
+     * 判断用户在集合中是否存在
+     */
+    public boolean isContains(User userInfo) {
         for (User rightUser : allUsers) {
-            if (userInput.getUsername().equals(rightUser.getUsername()) && userInput.getPassword().equals(rightUser.getPassword())) {
-                //有相同的代表存在，返回true，后面的不需要再比了
-                return true;
+            if (userInfo.getUsername().equals(rightUser.getUsername()) && userInfo.getPassword().equals(rightUser.getPassword())) {
+                return true; // 用户存在
             }
         }
-        //循环结束之后还没有找到就表示不存在
         return false;
     }
-
-
 }

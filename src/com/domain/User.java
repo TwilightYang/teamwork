@@ -1,12 +1,13 @@
 package com.domain;
 
+/**
+ * 用户类  用户信息：用户名和密码
+ */
 public class User {
     private String username;
     private String password;
 
-
-    public User() {
-    }
+    public User() {}
 
     public User(String username, String password) {
         this.username = username;
@@ -14,7 +15,7 @@ public class User {
     }
 
     /**
-     * 获取
+     * 获取用户名
      * @return username
      */
     public String getUsername() {
@@ -22,7 +23,7 @@ public class User {
     }
 
     /**
-     * 设置
+     * 设置用户名
      * @param username
      */
     public void setUsername(String username) {
@@ -30,20 +31,26 @@ public class User {
     }
 
     /**
-     * 获取
+     * 获取密码
      * @return password
      */
+
     public String getPassword() {
         return password;
     }
 
     /**
-     * 设置
+     * 设置密码
      * @param password
      */
     public void setPassword(String password) {
         this.password = password;
     }
 
-
+    /**
+     * 将User对象转换成字符串
+     */
+    public String toString() {
+        return "username=" + username + "&password=" + password;
+    }
 }

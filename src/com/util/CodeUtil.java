@@ -1,47 +1,35 @@
 package com.util;
-
 import java.util.ArrayList;
 import java.util.Random;
-
+/**
+ * 验证码工具类  生成随机验证码
+ */
 public class CodeUtil {
-
     public static String getCode(){
-        //1.创建一个集合
-        ArrayList<Character> list = new ArrayList<>();//52  索引的范围：0 ~ 51
-        //2.添加字母 a - z  A - Z
+        ArrayList<Character> list = new ArrayList<>(); // 创建一个集合 52个字符 索引0-51
+        // 添加字符 a-z A-Z
         for (int i = 0; i < 26; i++) {
-            list.add((char)('a' + i));//a - z
-            list.add((char)('A' + i));//A - Z
+            list.add((char)('a' + i)); // 添加a-z
+            list.add((char)('A' + i)); // 添加A-Z
         }
-        //3.打印集合
-        //System.out.println(list);
-        //4.生成4个随机字母
+        // 生成随机字符
         String result = "";
-        Random r = new Random();
+        Random random = new Random();
         for (int i = 0; i < 4; i++) {
-            //获取随机索引
-            int randomIndex = r.nextInt(list.size());
-            char c = list.get(randomIndex);
-            result = result + c;
+            int index = random.nextInt(list.size()); // 获取随机索引
+            char c = list.get(index);
+            result = result + c; // 添加到结果字符串
         }
-        //System.out.println(result);//长度为4的随机字符串
 
-        //5.在后面拼接数字 0~9
-        int number = r.nextInt(10);
-        //6.把随机数字拼接到result的后面
-        result = result + number;
-        //System.out.println(result);//ABCD5
-        //7.把字符串变成字符数组
-        char[] chars = result.toCharArray();//[A,B,C,D,5]
-        //8.在字符数组中生成一个随机索引
-        int index = r.nextInt(chars.length);
-        //9.拿着4索引上的数字，跟随机索引上的数字进行交换
+        int number = random.nextInt(10); // 生成0-9的随机数
+        result = result + number; // 随机数添加到结果字符串
+        char[] chars = result.toCharArray(); // 将结果字符串转换为字符数组
+        int index = random.nextInt(chars.length); //在字符数组中生成一个随机索引
+        // 交换索引4的字符和随机索引的字符
         char temp = chars[4];
         chars[4] = chars[index];
         chars[index] = temp;
-        //10.把字符数组再变回字符串
-        String code = new String(chars);
-        //System.out.println(code);
-        return code;
+
+        return new String(chars);
     }
 }
