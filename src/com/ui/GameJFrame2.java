@@ -8,16 +8,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Random;
 
-public class GameJFrame extends JFrame implements KeyListener,ActionListener{
-    //JFrame 界面，窗体
-    //子类呢？也表示界面，窗体
-    //规定：GameJFrame这个界面表示的就是游戏的主界面
-    //以后跟游戏相关的所有逻辑都写在这个类中
-
-    //创建一个二维数组
-    //目的：用来管理数据
-    //加载图片的时候，会根据二维数组中的数据进行加载
-    int[][] data = new int[4][4];
+public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
+    //这是根据GameJFrame创建的用来建成3x3拼图的类
+    int[][] data = new int[3][3];
 
     //记录空白方块在二维数组中的位置
     int x = 0;
@@ -25,16 +18,15 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
 
     //定义一个变量，记录当前展示图片的路径
     String pathMain = "image";
-    String style = "animal";
+    String style = "star";
     int numberNO = 1;
 
 
     //定义一个二维数组，存储正确的数据
     int[][] win = {
-            {1,2,3,4},
-            {5,6,7,8},
-            {9,10,11,12},
-            {13,14,15,0}
+            {1,2,3},
+            {4,5,6},
+            {7,8,0},
     };
 
     //定义变量用来统计步数
@@ -45,16 +37,15 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
     JMenuItem replayItem = new JMenuItem("重新游戏");
     JMenuItem reLoginItem = new JMenuItem("重新登录");
     JMenuItem closeItem = new JMenuItem("关闭游戏");
-    JMenuItem modeItem = new JMenuItem("模式切换");
+    JMenuItem modeItem = new JMenuItem("切换模式");
 
     JMenuItem accountItem = new JMenuItem("公众号");
 
-    JMenuItem girls = new JMenuItem("美女");
-    JMenuItem animals = new JMenuItem("动物");
-    JMenuItem sports = new JMenuItem("运动");
+    JMenuItem anime = new JMenuItem("动画");
+    JMenuItem star = new JMenuItem("明星");
 
 
-    public GameJFrame() {
+    public GameJFrame2() {
         //初始化界面
         initJFrame();
 
@@ -77,7 +68,7 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
     //初始化数据（打乱）
     private void initData() {
         //1.定义一个一维数组
-        int[] tempArr = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15};
+        int[] tempArr = {0, 1, 2, 3, 4, 5, 6, 7, 8};
         //2.打乱数组中的数据的顺序
         //遍历数组，得到每一个元素，拿着每一个元素跟随机索引上的数据进行交换
         Random r = new Random();
@@ -90,24 +81,14 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
             tempArr[index] = temp;
         }
 
-        /*
-        *
-        *           5   6   8   9
-        *           10  11  15  1
-        *           4   7   12  13
-        *           2   3   0  14
-        *
-        *           5   6   8   9   10  11  15  1   4   7   12  13  2   3   0   14
-        * */
-
         //4.给二维数组添加数据
         //遍历一维数组tempArr得到每一个元素，把每一个元素依次添加到二维数组当中
         for (int i = 0; i < tempArr.length; i++) {
             if (tempArr[i] == 0) {
-                x = i / 4;
-                y = i % 4;
+                x = i / 3;
+                y = i % 3;
             }
-            data[i / 4][i % 4] = tempArr[i];
+            data[i / 3][i % 3] = tempArr[i];
         }
     }
 
@@ -133,25 +114,20 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         stepCount.setBounds(50,30,100,20);
         this.getContentPane().add(stepCount);
 
-
-        //路径分为两种：
-        //绝对路径：一定是从盘符开始的。C:\  D：\
-        //相对路径：不是从盘符开始的
-        //相对路径相对当前项目而言的。 aaa\\bbb
-        //在当前项目下，去找aaa文件夹，里面再找bbb文件夹。
+        /*这里添加模式切换按钮*/
 
         //细节：
         //先加载的图片在上方，后加载的图片塞在下面。
-        //外循环 --- 把内循环重复执行了4次。
-        for (int i = 0; i < 4; i++) {
-            //内循环 --- 表示在一行添加4张图片
-            for (int j = 0; j < 4; j++) {
+        //外循环 --- 把内循环重复执行了3次。
+        for (int i = 0; i < 3; i++) {
+            //内循环 --- 表示在一行添加3张图片
+            for (int j = 0; j < 3; j++) {
                 //获取当前要加载图片的序号
                 int num = data[i][j];
                 //创建一个JLabel的对象（管理容器）
-                JLabel jLabel = new JLabel(new ImageIcon(pathMain+"/"+style+"/"+style+numberNO+"/" + num + ".jpg"));
+                JLabel jLabel = new JLabel(new ImageIcon(pathMain+"/"+style+"/"+style+numberNO+"/" + num + ".png"));
                 //指定图片位置
-                jLabel.setBounds(105 * j + 83, 105 * i + 134, 105, 105);
+                jLabel.setBounds(140 * j + 83, 140 * i + 134, 140, 140);
                 //给图片添加边框
                 //0:表示让图片凸起来
                 //1：表示让图片凹下去
@@ -189,9 +165,8 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         functionJMenu.add(reLoginItem);
         functionJMenu.add(closeItem);
         functionJMenu.add(modeItem);
-        styleJMenu.add(animals);
-        styleJMenu.add(sports);
-        styleJMenu.add(girls);
+        styleJMenu.add(anime);
+        styleJMenu.add(star);
 
         aboutJMenu.add(accountItem);
 
@@ -200,9 +175,8 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         reLoginItem.addActionListener(this);
         closeItem.addActionListener(this);
         modeItem.addActionListener(this);
-        animals.addActionListener(this);
-        sports.addActionListener(this);
-        girls.addActionListener(this);
+        anime.addActionListener(this);
+        star.addActionListener(this);
         accountItem.addActionListener(this);
 
         //将菜单里面的两个选项添加到菜单当中
@@ -247,7 +221,7 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         if (code == 65){//按键a
             //把界面中所有的图片全部删除
             this.getContentPane().removeAll();
-            //加载第一张完整的图片image/animal/animal1
+            //加载第一张完整的图片image/anime/anime1
             JLabel all = new JLabel(new ImageIcon(pathMain+"/"+style+"/"+style+numberNO+"/" + "all.jpg"));
             all.setBounds(83,134,420,420);
             this.getContentPane().add(all);
@@ -278,7 +252,7 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         System.out.println(code);
         if (code == 37) {
             System.out.println("向左移动");
-            if(y == 3){
+            if(y == 2){
                 return;
             }
             //逻辑：
@@ -293,7 +267,7 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
 
         } else if (code == 38) {
             System.out.println("向上移动");
-            if(x == 3){
+            if(x == 2){
                 //表示空白方块已经在最下方了，他的下面没有图片再能移动了
                 return;
             }
@@ -341,10 +315,9 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
             initImage();
         }else if(code == 87){
             data = new int[][]{
-                    {1,2,3,4},
-                    {5,6,7,8},
-                    {9,10,11,12},
-                    {13,14,15,0}
+                    {1,2,3},
+                    {4,5,6},
+                    {7,8,0},
             };
             initImage();
         }
@@ -395,7 +368,7 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
             //关闭当前的游戏界面
             this.setVisible(false);
             //打开新模式界面
-            new GameJFrame2();
+            new GameJFrame();
         }else if(obj == accountItem){
             System.out.println("公众号");
 
@@ -417,40 +390,27 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
             jDialog.setModal(true);
             //让弹框显示出来
             jDialog.setVisible(true);
-        }else if (obj == girls){
-            if (style.equals("girl")){
-                numberNO=++numberNO%14;
+        }else if (obj == star){
+            if (style.equals("star")){
+                numberNO=++numberNO%11;
                 if (numberNO == 0) {
                     numberNO = 1;
                 }
             } else numberNO=1;
-            style = "girl";
+            style = "star";
             step=0;
             //初始化数据（打乱）
             initData();
             initImage();
-        } else if (obj == animals) {
-            if (style.equals("animal")){
-                numberNO=++numberNO%9;
-                if (numberNO == 0) {
-                    numberNO = 1;
-                }
-            }
-            else numberNO=1;
-            style = "animal";
-            step=0;
-            //初始化数据（打乱）
-            initData();
-            initImage();
-        } else if (obj == sports) {
-            if (style.equals("sport")){
+        } else if (obj == anime) {
+            if (style.equals("anime")){
                 numberNO=++numberNO%11;
                 if (numberNO == 0) {
                     numberNO = 1;
                 }
             }
             else numberNO=1;
-            style = "sport";
+            style = "anime";
             step=0;
             //初始化数据（打乱）
             initData();
@@ -458,3 +418,4 @@ public class GameJFrame extends JFrame implements KeyListener,ActionListener{
         }
     }
 }
+
