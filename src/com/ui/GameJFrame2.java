@@ -6,9 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Random;
+import java.util.*;
 
-public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
+public class GameJFrame2 extends JFrame implements KeyListener, ActionListener{
     //这是根据GameJFrame创建的用来建成3x3拼图的类
     int[][] data = new int[3][3];
 
@@ -44,6 +44,7 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
     JMenuItem anime = new JMenuItem("动画");
     JMenuItem star = new JMenuItem("明星");
 
+    Thread thread;
 
     public GameJFrame2() {
         //初始化界面
@@ -66,19 +67,27 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
 
 
     //初始化数据（打乱）
-    private void initData() {
+    public void initData() {
         //1.定义一个一维数组
-        int[] tempArr = {0, 1, 2, 3, 4, 5, 6, 7, 8};
+        int[] tempArr = {1, 2, 3, 4, 5, 6, 7, 8, 0};
         //2.打乱数组中的数据的顺序
         //遍历数组，得到每一个元素，拿着每一个元素跟随机索引上的数据进行交换
         Random r = new Random();
-        for (int i = 0; i < tempArr.length; i++) {
+        for (int i = 0; i < tempArr.length-1;) {
             //获取到随机索引
-            int index = r.nextInt(tempArr.length);
-            //拿着遍历到的每一个数据，跟随机索引上的数据进行交换
-            int temp = tempArr[i];
-            tempArr[i] = tempArr[index];
-            tempArr[index] = temp;
+            int index = r.nextInt(tempArr.length-1);
+            if ((Math.abs(index-i))%2==0) {
+                //拿着遍历到的每一个数据，跟随机索引上的数据进行交换
+                int left = Math.min(i, index);
+                int right = Math.max(i, index);
+                int temp = tempArr[left];
+                while (left < right) {
+                    tempArr[left] = tempArr[left + 1];
+                    left++;
+                }
+                tempArr[right] = temp;
+                i++;
+            }
         }
 
         //4.给二维数组添加数据
@@ -97,7 +106,7 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
      * 初始化图片
      * 添加图片的时候，就需要按照二维数组中管理的数据添加图片
      */
-    private void initImage() {
+    public void initImage() {
 
         //清空原本已经出现的所有图片
         this.getContentPane().removeAll();
@@ -151,7 +160,7 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
 
     }
 
-    private void initJMenuBar() {
+    public void initJMenuBar() {
         //创建整个的菜单对象
         JMenuBar jMenuBar = new JMenuBar();
         //创建菜单上面的两个选项的对象 （功能  关于我们）
@@ -191,7 +200,7 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
         this.setJMenuBar(jMenuBar);
     }
 
-    private void initJFrame() {
+    public void initJFrame() {
         //设置界面的宽高
         this.setSize(603, 680);
         //设置界面的标题
@@ -222,7 +231,7 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
             //把界面中所有的图片全部删除
             this.getContentPane().removeAll();
             //加载第一张完整的图片image/anime/anime1
-            JLabel all = new JLabel(new ImageIcon(pathMain+"/"+style+"/"+style+numberNO+"/" + "all.jpg"));
+            JLabel all = new JLabel(new ImageIcon(pathMain+"/"+style+"/"+style+numberNO+"/" + "all.png"));
             all.setBounds(83,134,420,420);
             this.getContentPane().add(all);
             //加载背景图片
@@ -235,6 +244,16 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
             this.getContentPane().repaint();
 
 
+        }else if (code == 87) {
+            if (thread==null) {
+                thread = new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        restoration();
+                    }
+                });
+                thread.start();
+            }
         }
     }
 
@@ -313,14 +332,23 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
             initImage();
         }else if(code == 65){
             initImage();
-        }else if(code == 87){
+        }/*else if(code == 87){
             data = new int[][]{
                     {1,2,3},
                     {4,5,6},
                     {7,8,0},
             };
             initImage();
-        }
+        }*/
+        else if (code == 87) {
+            thread.stop();
+            thread = null;
+            //线程中断，要进行更新图片，避免0方块的位置错乱
+            initImage();
+            int[] zero = findZero();
+            x = zero[0];
+            y = zero[1];
+            }
     }
 
 
@@ -337,6 +365,7 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
                 }
             }
         }
+        thread = null;
         //循环结束表示数组遍历比较完毕，全都一样返回true
         return true;
     }
@@ -416,6 +445,305 @@ public class GameJFrame2 extends JFrame implements KeyListener,ActionListener{
             initData();
             initImage();
         }
+    }
+
+
+    public int[] findZero() {
+        int hang = data.length - 1, lie = data[0].length - 1;
+        for (int j = 0, dataLength = data.length; j < dataLength; j++) {
+            int[] ints = data[j];
+            for (int k = 0, intsLength = ints.length; k < intsLength; k++) {
+                int i = ints[k];
+                if (i == 0) {
+                    hang = j;
+                    lie = k;
+                }
+            }
+        }
+        return new int[]{hang, lie};
+    }
+    public int[] findIndex(int a){
+        int hang = data.length - 1, lie = data[0].length - 1;
+        for (int j = 0, dataLength = data.length; j < dataLength; j++) {
+            int[] ints = data[j];
+            for (int k = 0, intsLength = ints.length; k < intsLength; k++) {
+                int i = ints[k];
+                if (i == a) {
+                    hang = j;
+                    lie = k;
+                }
+            }
+        }
+        return new int[]{hang, lie};
+    }
+    public void restoration(){
+        boolean[][] flag = new boolean[data.length][data[0].length];
+        for (boolean[] booleans : flag) {
+            Arrays.fill(booleans,true);
+        }
+        int k = 0;
+        for (; k < data.length-2; k++) {
+            for (int i = k, j = k; j < data.length; j++) {
+                int[] temp = findIndex(win[i][j]);
+                if (temp[0]==i&&temp[1]==j)flag[i][j] = false;
+                else if (j==data[0].length-1&& !flag[i][j-1])specialMove(temp, new int[]{i, j}, findZero(), flag);
+                else move(temp, new int[]{i,j}, findZero(), flag);
+            }
+            for (int i = k, j = k; i < data.length; i++) {
+                int[] temp = findIndex(win[i][j]);
+                if (temp[0]==i&&temp[1]==j)flag[i][j] = false;
+                else if (i==data.length-1&& !flag[i-1][j])specialMove(temp, new int[]{i, j}, findZero(), flag);
+                else move(temp, new int[]{i,j}, findZero(), flag);
+            }
+        }
+        move(findIndex(win[k][k]), new int[]{k,k}, findZero(), flag);
+    }
+
+    public void specialMove(int[] begin, int[] end, int[] zeroIndex, boolean[][] flag) {
+        int i = 0, j = 0;
+        if (end[0] == data.length - 1) {
+            move(begin, new int[]{end[0], end[1] + 2}, zeroIndex, flag);
+            begin = new int[]{end[0], end[1] + 2};
+            i = begin[0];
+            j = begin[1];
+            flag[begin[0]][begin[1]] = false;
+            List<int[]> zeroPath = zeroPath(zeroIndex, new int[]{end[0], end[1]}, flag);
+            for (int[] ints : zeroPath) {
+                swap(ints, zeroIndex);
+            }
+            swap(zeroIndex, new int[]{end[0] - 1, end[1]});
+            swap(zeroIndex, new int[]{zeroIndex[0], zeroIndex[1] + 1});
+            swap(zeroIndex, new int[]{zeroIndex[0] + 1, zeroIndex[1]});
+            swap(zeroIndex, begin);
+            swap(zeroIndex, new int[]{zeroIndex[0] - 1, zeroIndex[1]});
+            swap(zeroIndex, new int[]{zeroIndex[0], zeroIndex[1] - 1});
+            swap(zeroIndex, new int[]{zeroIndex[0], zeroIndex[1] - 1});
+            swap(zeroIndex, new int[]{zeroIndex[0] + 1, zeroIndex[1]});
+            swap(zeroIndex, new int[]{zeroIndex[0], zeroIndex[1] + 1});
+        } else {
+            move(begin, new int[]{end[0] + 2, end[1]}, zeroIndex, flag);
+            begin = new int[]{end[0] + 2, end[1]};
+            i = begin[0];
+            j = begin[1];
+            flag[begin[0]][begin[1]] = false;
+            List<int[]> zeroPath = zeroPath(zeroIndex, new int[]{end[0], end[1]}, flag);
+            for (int[] ints : zeroPath) {
+                swap(ints, zeroIndex);
+            }
+            swap(zeroIndex, new int[]{end[0], end[1] - 1});
+            swap(zeroIndex, new int[]{zeroIndex[0] + 1, zeroIndex[1]});
+            swap(zeroIndex, new int[]{zeroIndex[0], zeroIndex[1] + 1});
+            swap(zeroIndex, begin);
+            swap(zeroIndex, new int[]{zeroIndex[0], zeroIndex[1] - 1});
+            swap(zeroIndex, new int[]{zeroIndex[0] - 1, zeroIndex[1]});
+            swap(zeroIndex, new int[]{zeroIndex[0] - 1, zeroIndex[1]});
+            swap(zeroIndex, new int[]{zeroIndex[0], zeroIndex[1] + 1});
+            swap(zeroIndex, new int[]{zeroIndex[0] + 1, zeroIndex[1]});
+        }
+        flag[end[0]][end[1]] = false;
+        flag[i][j] = true;
+    }
+
+    public void move(int[] begin, int[] end, int[] zeroIndex, boolean[][] flag) {
+        flag[begin[0]][begin[1]] = false;
+        List<int[]> path = zeroPath(begin, end, flag);
+        for (int[] ints : path) {
+            List<int[]> zeroPath = zeroPath(zeroIndex, ints, flag);
+            for (int[] zero : zeroPath) {
+                swap(zero, zeroIndex);
+            }
+            flag[begin[0]][begin[1]] = true;
+            swap(begin, zeroIndex);
+            begin = ints;
+            flag[begin[0]][begin[1]] = false;
+        }
+        if (zeroIndex[0]==data.length-1&&end[1]==zeroIndex[1])swap(zeroIndex, new int[]{data.length-1, end[1]+1});
+        else if (zeroIndex[0]==end[0]&&zeroIndex[1]==data.length-1)swap(zeroIndex, new int[]{end[0]+1, data.length-1});
+    }
+
+    public void swap(int[] a, int[] b) {
+        if (a[0] < 0 || a[0] >= data.length || b[0] < 0 || b[0] >= data.length || a[1] < 0 || a[1] >= data[0].length || b[1] < 0 || b[1] >= data[0].length)
+            return;
+        int temp = data[a[0]][a[1]];
+        data[a[0]][a[1]] = data[b[0]][b[1]];
+        data[b[0]][b[1]] = temp;
+        int temp1 = a[0], temp2 = a[1];
+        a[0] = b[0];
+        a[1] = b[1];
+        b[0] = temp1;
+        b[1] = temp2;
+        step++;
+        initImage();
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 输出空白块从起点到终点的路径，考虑障碍，不包起点
+     *
+     * @param begin         起点
+     * @param end           终点
+     * @param Reachable 障碍表
+     * @return 路径集合
+     */
+    public List<int[]> zeroPath(int[] begin, int[] end, boolean[][] Reachable) {
+        int[][] place = new int[Reachable.length][Reachable[0].length];
+        for (int i = 0; i < Reachable.length; i++) {
+            for (int j = 0; j < Reachable[i].length; j++) {
+                if (Reachable[i][j])place[i][j] = 1;
+                else place[i][j] = Integer.MAX_VALUE;
+            }
+        }
+        List<int[]> list = findLeastCostPath(place, begin[0], begin[1], end[0], end[1]);
+        if (!list.isEmpty())list.remove(0);
+        return list;
+    }
+    public static class Node {
+        int x, y;
+        int fatherX = -1, fatherY = -1;
+
+        public Node(int x, int y){
+            this.x = x;
+            this.y = y;
+        }
+        public Node(int x, int y, int fatherX, int fatherY){
+            this.fatherX = fatherX;
+            this.fatherY = fatherY;
+            this.x = x;
+            this.y = y;
+        }
+        public void addFather(int fatherX, int fatherY){
+            this.fatherX = fatherX;
+            this.fatherY = fatherY;
+        }
+        public void setFather(int fatherX, int fatherY){
+            addFather(fatherX,fatherY);
+        }
+        public int[] getFather(int x, int y){
+            if (x==this.x&&y==this.y)return new int[]{fatherX,fatherY};
+            return null;
+        }
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            GameJFrame.Node node = (GameJFrame.Node) o;
+            return x == node.x && y == node.y;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
+    }
+    public List<int[]> findLeastCostPath(int[][] place, int beginX, int beginY, int endX, int endY){
+        if (place[endX][endY]==Integer.MAX_VALUE)return new ArrayList<>();
+        Set<GameJFrame.Node> closeSet = new HashSet<>();//记录走过的路径
+        Set<GameJFrame.Node> openSet = new HashSet<>();//记录可以走的路
+        int[][] costList = new int[place.length][place[0].length];
+        for (int[] ints : costList) {
+            Arrays.fill(ints, Integer.MAX_VALUE);
+        }
+
+        costList[beginX][beginY] = 0;
+        openSet.add(new GameJFrame.Node(beginX,beginY));
+
+        while(openSet.size()!=0){
+            GameJFrame.Node node = new GameJFrame.Node(-1,-1);
+            int min = Integer.MAX_VALUE;
+            for (GameJFrame.Node n : openSet) {
+                if(costList[n.x][n.y]<min){
+                    beginX = n.x;
+                    beginY = n.y;
+                    node = n;
+                    min = costList[beginX][beginY];
+                }
+            }
+            if (beginX+1<place.length&&place[beginX+1][beginY]!=Integer.MAX_VALUE&&costList[beginX+1][beginY]>costList[beginX][beginY]+place[beginX+1][beginY]){
+                openSet.add(new GameJFrame.Node(beginX+1,beginY, beginX, beginY));
+                costList[beginX+1][beginY]=costList[beginX][beginY]+place[beginX+1][beginY];
+            }
+            if (beginX>0&&place[beginX-1][beginY]!=Integer.MAX_VALUE&&costList[beginX-1][beginY]>costList[beginX][beginY]+place[beginX-1][beginY]){
+                openSet.add(new GameJFrame.Node(beginX-1,beginY,beginX,beginY));
+                costList[beginX-1][beginY]=costList[beginX][beginY]+place[beginX-1][beginY];
+            }
+            if (beginY+1<place[0].length&&place[beginX][beginY+1]!=Integer.MAX_VALUE&&costList[beginX][beginY+1]>costList[beginX][beginY]+place[beginX][beginY+1]){
+                openSet.add(new GameJFrame.Node(beginX,beginY+1,beginX,beginY));
+                costList[beginX][beginY+1]=costList[beginX][beginY]+place[beginX][beginY+1];
+            }
+            if (beginY>0&&place[beginX][beginY-1]!=Integer.MAX_VALUE&&costList[beginX][beginY-1]>costList[beginX][beginY]+place[beginX][beginY-1]){
+                openSet.add(new GameJFrame.Node(beginX,beginY-1,beginX,beginY));
+                costList[beginX][beginY-1]=costList[beginX][beginY]+place[beginX][beginY-1];
+            }
+            openSet.remove(node);
+            closeSet.add(node);
+        }
+        if (!closeSet.contains(new GameJFrame.Node(endX, endY)))return new ArrayList<>();
+        List<int[]> temp = new ArrayList<>();
+        temp.add(new int[]{endX,endY});
+        while (true) {
+            for (GameJFrame.Node node : closeSet) {
+                int[] father = node.getFather(endX, endY);
+                if (father != null) {
+                    endX = father[0];
+                    endY = father[1];
+                    temp.add(new int[]{endX,endY});
+                    closeSet.remove(node);
+                    break;
+                }
+            }
+            if (endX==-1||endY==-1){
+                temp.remove(temp.size()-1);
+                break;
+            }
+        }
+        List<int[]> path = new ArrayList<>();
+        for (int i = temp.size()-1; i > -1; i--) {
+            path.add(temp.get(i));
+        }
+        return path;
+    }
+    /**
+     * 输出起始点到终点的路径，不考虑障碍，不包起点
+     *
+     * @param begin 起点
+     * @param end   终点
+     * @return 路径集合
+     */
+    public List<int[]> findPath(int[] begin, int[] end) {
+        int hangOfBegin = begin[0];
+        int lieOfBegin = begin[1];
+        int hangOfEnd = end[0];
+        int lieOfEnd = end[1];
+        List<int[]> path = new ArrayList<>();
+        int hang = hangOfEnd - hangOfBegin;
+        int lie = lieOfEnd - lieOfBegin;
+        if (hang < 0) {
+            while (hang != 0) {
+                path.add(new int[]{--hangOfBegin, lieOfBegin});
+                hang++;
+            }
+        } else if (hang > 0) {
+            while (hang != 0) {
+                path.add(new int[]{++hangOfBegin, lieOfBegin});
+                hang--;
+            }
+        }
+        if (lie < 0) {
+            while (lie != 0) {
+                path.add(new int[]{hangOfBegin, --lieOfBegin});
+                lie++;
+            }
+        } else if (lie > 0) {
+            while (lie != 0) {
+                path.add(new int[]{hangOfBegin, ++lieOfBegin});
+                lie--;
+            }
+        }
+        return path;
     }
 }
 

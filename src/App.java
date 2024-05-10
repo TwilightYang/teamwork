@@ -1,3 +1,5 @@
+import com.ui.GameJFrame;
+import com.ui.GameJFrame2;
 import com.ui.LoginJFrame;
 /*
 运行类
