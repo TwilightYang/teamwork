@@ -52,6 +52,7 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
     private final JMenuItem girls = new JMenuItem("美女");
     private final JMenuItem animals = new JMenuItem("动物");
     private final JMenuItem sports = new JMenuItem("运动");
+    private final JMenuItem change = new JMenuItem("模式转换（3*3）");
 
 
     public GameJFrame() {
@@ -210,11 +211,14 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
         sports.addActionListener(this);
         girls.addActionListener(this);
         accountItem.addActionListener(this);
+        change.addActionListener(this);
 
         //将菜单里面的两个选项添加到菜单当中
         jMenuBar.add(functionJMenu);
         jMenuBar.add(aboutJMenu);
         jMenuBar.add(styleJMenu);
+        jMenuBar.add(change);
+
 
 
         //给整个界面设置菜单
@@ -470,6 +474,9 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
             //初始化数据（打乱）
             initData();
             initImage();
+        } else if (obj == change) {
+            this.setVisible(false);
+            new GameJFrame2();
         }
     }
 

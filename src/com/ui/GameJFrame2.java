@@ -37,7 +37,7 @@ public class GameJFrame2 extends JFrame implements KeyListener, ActionListener{
     JMenuItem replayItem = new JMenuItem("重新游戏");
     JMenuItem reLoginItem = new JMenuItem("重新登录");
     JMenuItem closeItem = new JMenuItem("关闭游戏");
-    JMenuItem modeItem = new JMenuItem("切换模式");
+    JMenuItem modeItem = new JMenuItem("切换模式(4*4)");
 
     JMenuItem accountItem = new JMenuItem("公众号");
 
@@ -192,6 +192,7 @@ public class GameJFrame2 extends JFrame implements KeyListener, ActionListener{
         jMenuBar.add(functionJMenu);
         jMenuBar.add(aboutJMenu);
         jMenuBar.add(styleJMenu);
+        jMenuBar.add(modeItem);
 
 
 
