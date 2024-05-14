@@ -1,11 +1,11 @@
 package com.ui;
 
+import javax.sound.sampled.*;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class GameJFrame extends JFrame implements KeyListener, ActionListener {
@@ -27,6 +27,18 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
     private String pathMain = "image";
     private String style = "animal";
     private int numberNO = 1;
+
+    //定义变量，记录当前音乐的路径
+    private volatile String pathMusic = "music";
+    private volatile String musicStyle = "animal";
+    private volatile int musicNO = 1;
+    private volatile boolean musicIsPlaying = false;
+    private static volatile Clip music;
+    private long microsecondLength = 0;
+    private long microsecondPosition = 0;
+    private volatile boolean musicCircle = true;
+    private volatile boolean musicIsNext = true;
+    private volatile boolean musicContinus = false;
 
 
     //定义一个二维数组，存储正确的数据
@@ -52,6 +64,7 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
     private final JMenuItem girls = new JMenuItem("美女");
     private final JMenuItem animals = new JMenuItem("动物");
     private final JMenuItem sports = new JMenuItem("运动");
+
     private final JMenuItem change = new JMenuItem("模式转换（3*3）");
 
 
@@ -62,12 +75,14 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
         //初始化菜单
         initJMenuBar();
 
-
         //初始化数据（打乱）
         initData();
 
         //初始化图片（根据打乱之后的结果去加载图片）
         initImage();
+
+        //初始化音乐（默认为关闭状态）
+        initMusic();
 
         //让界面显示出来，建议写在最后
         this.setVisible(true);
@@ -137,11 +152,13 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
             this.getContentPane().add(winJLabel);
         }
 
-
+        //步数
         JLabel stepCount = new JLabel("步数：" + step);
         stepCount.setBounds(50, 30, 100, 20);
         this.getContentPane().add(stepCount);
 
+        //重新初始化音乐（防止音乐被删）
+        initMusic();
 
         //路径分为两种：
         //绝对路径：一定是从盘符开始的。C:\  D：\
@@ -174,9 +191,9 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
         //添加背景图片
         JLabel background = new JLabel(new ImageIcon("image\\background.png"));
         background.setBounds(40, 40, 508, 560);
+
         //把背景图片添加到界面当中
         this.getContentPane().add(background);
-
 
         //刷新一下界面
         this.getContentPane().repaint();
@@ -220,9 +237,125 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
         jMenuBar.add(change);
 
 
-
         //给整个界面设置菜单
         this.setJMenuBar(jMenuBar);
+    }
+
+    private volatile File file = null;
+    private volatile AudioInputStream audioInputStream = null;
+    public void initMusic() {
+        //显示音乐相关图标
+        JLabel musicStart = new JLabel(new ImageIcon("image\\musicImage\\pause.jpg"));
+        musicStart.setBounds(400,30,30,30);
+        this.getContentPane().add(musicStart);
+
+        JLabel musicNext = new JLabel(new ImageIcon("image\\musicImage\\next.jpg"));
+        musicNext.setBounds(440,30,30,30);
+        this.getContentPane().add(musicNext);
+
+        JLabel musicSingleCircle = new JLabel(new ImageIcon("image\\musicImage\\circle.jpg"));
+        musicSingleCircle.setBounds(480,30,30,30);
+        this.getContentPane().add(musicSingleCircle);
+
+        //给三个类按钮添加监听事件
+        try {
+            //加载音乐
+            file = new File(pathMusic + "\\" + musicNO + musicStyle + ".wav");
+            audioInputStream = AudioSystem.getAudioInputStream(file);
+//            AudioFormat audioFormat = audioInputStream.getFormat();   不知道有啥用
+            if (music != null) { // 释放旧的音乐
+                music.stop();
+                music.flush();
+                music.close();
+            }
+            music = AudioSystem.getClip();
+            music.open(audioInputStream);
+            music.addLineListener(
+                    new LineListener() {
+                        @Override
+                        public void update(LineEvent event) {
+                            try {
+                                System.out.println(event.getType());
+                                System.out.println(event.getFramePosition());
+
+                                if (event.getType().equals(LineEvent.Type.CLOSE) && musicContinus) {
+                                    if (musicCircle) {
+                                        if (musicNO >= 3) musicNO = 1;
+                                        else musicNO++;
+                                    }
+                                    file = new File(pathMusic + "\\" + musicNO + musicStyle + ".wav");
+                                    audioInputStream = AudioSystem.getAudioInputStream(file);
+                                    music.open(audioInputStream);
+                                    music.start();
+                                } else if (event.getType().equals(LineEvent.Type.STOP)) {
+                                    if (music.getMicrosecondLength() != music.getMicrosecondPosition())
+                                        return ;
+                                    music.close();
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+            );
+
+            //播放与暂停按钮
+            musicStart.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    System.out.println("pause / start");
+                    if (!musicIsPlaying) {
+                        //播放音乐
+                        music.setMicrosecondPosition(microsecondPosition);
+                        music.start();
+                        musicStart.setIcon(new ImageIcon("image\\musicImage\\start.jpg"));
+                        musicIsPlaying = true;
+                    } else {
+                        //暂停音乐
+                        music.stop();
+                        microsecondPosition = music.getMicrosecondPosition();
+                        musicStart.setIcon(new ImageIcon("image\\musicImage\\pause.jpg"));
+                        musicIsPlaying = false;
+                        musicContinus = true;
+                    }
+                }
+            });
+
+            //播放下一首按钮
+            musicNext.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    System.out.println("next");
+                    musicContinus = true;
+                    music.close();
+                    //重新加载音乐
+                    microsecondPosition = 0;
+                    musicStart.setIcon(new ImageIcon("image\\musicImage\\pause.jpg"));
+                    sleepThread(1000);
+                    musicStart.setIcon(new ImageIcon("image\\musicImage\\start.jpg"));
+                    music.start();
+                }
+            });
+
+            //单曲循环按钮
+            musicSingleCircle.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    System.out.println("circle / single");
+                    if (musicCircle) {
+                        musicSingleCircle.setIcon(new ImageIcon("image\\musicImage\\singleCircle.jpg"));
+                        musicCircle = false;
+                    } else {
+                        musicSingleCircle.setIcon(new ImageIcon("image\\musicImage\\circle.jpg"));
+                        musicCircle = true;
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "无法加载音乐文件: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void initJFrame() {
@@ -407,6 +540,8 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
             initData();
             //重新加载图片
             initImage();
+            //重新加载音乐
+            initMusic();
         } else if (obj == reLoginItem) {
             System.out.println("重新登录");
             //关闭当前的游戏界面
@@ -447,9 +582,11 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
             } else numberNO = 1;
             style = "girl";
             step = 0;
+            musicStyle = "girl";
             //初始化数据（打乱）
             initData();
             initImage();
+            initMusic();
         } else if (obj == animals) {
             if (style.equals("animal")) {
                 numberNO = ++numberNO % 9;
@@ -459,9 +596,11 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
             } else numberNO = 1;
             style = "animal";
             step = 0;
+            musicStyle = "animal";
             //初始化数据（打乱）
             initData();
             initImage();
+            initMusic();
         } else if (obj == sports) {
             if (style.equals("sport")) {
                 numberNO = ++numberNO % 11;
@@ -471,11 +610,18 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
             } else numberNO = 1;
             style = "sport";
             step = 0;
+            musicStyle = "sport";
             //初始化数据（打乱）
             initData();
             initImage();
+            initMusic();
         } else if (obj == change) {
             this.setVisible(false);
+            if (music != null) { // 释放旧的音乐
+                music.stop();
+                music.flush();
+                music.close();
+            }
             new GameJFrame2();
         }
     }
@@ -777,5 +923,13 @@ public class GameJFrame extends JFrame implements KeyListener, ActionListener {
             }
         }
         return path;
+    }
+
+    void sleepThread(long mills) {
+        try {
+            Thread.sleep(mills);
+        } catch (InterruptedException e) {
+
+        }
     }
 }
